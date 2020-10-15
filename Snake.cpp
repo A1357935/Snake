@@ -146,7 +146,7 @@ void myFood()
 	food.flag = 1;
 	for (int i = 0; i < snake.num; i++)
 	{
-		if (food.foodxy.x == snake.xy[i].x && food.foodxy.y == snake.xy[i].y|| food.foodxy.y <= 30)
+		if (food.foodxy.x == snake.xy[i].x && food.foodxy.y == snake.xy[i].y || food.foodxy.y <= 29 || food.foodxy.y >= 591)
 		{
 			food.foodxy.x = rand() % 80 * 10;
 			food.foodxy.y = rand() % 60 * 10;
@@ -177,7 +177,7 @@ void myBoom()
 	boom.flag = 1;
 	for (int i = 0; i < snake.num; i++)
 	{
-		if (boom.Boomxy.x == snake.xy[i].x && boom.Boomxy.y == snake.xy[i].y|| boom.Boomxy.y<=30)
+		if (boom.Boomxy.x == snake.xy[i].x && boom.Boomxy.y == snake.xy[i].y || boom.Boomxy.y <= 29 || boom.Boomxy.y >= 591)
 		{
 			boom.Boomxy.x = rand() % 80 * 10;
 			boom.Boomxy.y = rand() % 60 * 10;
@@ -207,7 +207,7 @@ void myGrass()
 	grass.flag = 1;
 	for (int i = 0; i < snake.num; i++)
 	{
-		if (grass.grassxy.x == snake.xy[i].x && grass.grassxy.y == snake.xy[i].y|| grass.grassxy.y <= 30)
+		if (grass.grassxy.x == snake.xy[i].x && grass.grassxy.y == snake.xy[i].y || grass.grassxy.y <= 29 || grass.grassxy.y >= 591)
 		{
 			grass.grassxy.x = rand() % 80 * 10;
 			grass.grassxy.y = rand() % 60 * 10;
@@ -218,7 +218,7 @@ void myGrass()
 void drawGrass()
 {
 	fillrectangle(grass.grassxy.x, grass.grassxy.y, grass.grassxy.x + 10, grass.grassxy.y + 10);
-	
+
 }
 
 void eatGrass()
@@ -234,14 +234,17 @@ void eatGrass()
 int gameover()
 {
 
-	if (snake.xy[0].x <= 0 || snake.xy[0].y <= 30 || snake.xy[0].x >= 791 || snake.xy[0].y >= 591)
+	if (snake.xy[0].x <= 9 || snake.xy[0].y <= 29 || snake.xy[0].x >= 781 || snake.xy[0].y >= 581)
 	{
 		return 1;
 	}
-
+	if (snake.num <= 2)
+	{
+		return 1;
+	}
 	for (int i = 1; i < snake.num; i++)
 	{
-		if (snake.xy[0].x == snake.xy[i].x&&snake.xy[0].y == snake.xy[i].y)
+		if (snake.xy[0].x == snake.xy[i].x && snake.xy[0].y == snake.xy[i].y)
 		{
 			return 1;
 		}
@@ -261,7 +264,7 @@ void main()
 	{
 		cleardevice();
 		setlinecolor(BLACK);
-		rectangle(0, 30, 791, 591);
+		rectangle(9, 30, 791, 591);
 		setfillcolor(GREEN);
 		drawFood();
 		setfillcolor(BLACK);
@@ -272,8 +275,8 @@ void main()
 		sprintf_s(grade, "%d", food.eatGrade);
 		setbkmode(TRANSPARENT);
 		settextcolor(BLACK);
-		outtextxy(580, 10, "分数：");
-		outtextxy(620, 10, grade);
+		outtextxy(350, 10, "Score：");
+		outtextxy(410, 10, grade);
 		if (boom.flag == 0)
 		{
 			myBoom();
@@ -293,7 +296,8 @@ void main()
 		{
 			closegraph();
 			printf("GameOver!");
-			system("pause");
+			system("Pause");                   //存在bug，未解决
+			break;
 		}
 		drawSnake();
 		moveSnake();
