@@ -4,6 +4,7 @@
 #include<graphics.h>
 #include<time.h>
 #include<windef.h>
+#include<mmsystem.h>
 
 typedef struct pointxy
 {
@@ -37,7 +38,32 @@ struct myGrass
 	int flag = 0;
 }grass;
 
+struct myLevel
+{
+	MYPOINT levelxy;
+	int flag = 0;
+	int thelevel = 1;
+}level;
+
 enum movPosition { right, left, down, up };
+
+void start()
+{
+	settextcolor(GREEN);
+	outtextxy(200, 200, "使用wasd、方向键操控小蛇。");
+	outtextxy(200, 220, "绿色为食物，食用后小蛇长度增加一格，分数+1。");
+	outtextxy(200, 240, "红色为毒草，食用后小蛇长度减少两格，分数-1。");
+	outtextxy(200, 260, "黑色为地雷，踩到后小蛇长度减半，分数-2。");
+	outtextxy(200, 280, "长度至10和20时，得分翻倍。");
+	outtextxy(200, 300, "尽量得到更多的分数！");
+	outtextxy(200, 320, "按下回车开始游戏");
+	int userkey = 0;
+	while (userkey != 13)
+	{
+		if (_kbhit())
+			userkey = _getch();
+	}
+}
 
 int initSnake()
 {
@@ -143,10 +169,10 @@ void myFood()
 {
 	food.foodxy.x = rand() % 80 * 10;
 	food.foodxy.y = rand() % 60 * 10;
-	food.flag = 1;
+	food.flag += 1;
 	for (int i = 0; i < snake.num; i++)
 	{
-		if (food.foodxy.x == snake.xy[i].x && food.foodxy.y == snake.xy[i].y || food.foodxy.y <= 29 || food.foodxy.y >= 591)
+		if (food.foodxy.x == snake.xy[i].x && food.foodxy.y == snake.xy[i].y || food.foodxy.y <= 39 || food.foodxy.y >= 561 || food.foodxy.x <= 39 || food.foodxy.x >= 761)
 		{
 			food.foodxy.x = rand() % 80 * 10;
 			food.foodxy.y = rand() % 60 * 10;
@@ -165,7 +191,18 @@ void eatFood()
 	if (snake.xy[0].x == food.foodxy.x && snake.xy[0].y == food.foodxy.y)
 	{
 		snake.num++;
-		food.eatGrade += 1;
+		if (snake.num < 10)
+		{
+			food.eatGrade += 1;
+		}
+		if (snake.num >= 10)
+		{
+			food.eatGrade += 2;
+		}
+		if (snake.num >= 20)
+		{
+			food.eatGrade += 2;
+		}
 		food.flag = 0;
 	}
 }
@@ -177,7 +214,7 @@ void myBoom()
 	boom.flag = 1;
 	for (int i = 0; i < snake.num; i++)
 	{
-		if (boom.Boomxy.x == snake.xy[i].x && boom.Boomxy.y == snake.xy[i].y || boom.Boomxy.y <= 29 || boom.Boomxy.y >= 591)
+		if (boom.Boomxy.x == snake.xy[i].x && boom.Boomxy.y == snake.xy[i].y || boom.Boomxy.y <= 39 || boom.Boomxy.y >= 561 || boom.Boomxy.x <= 39 || boom.Boomxy.x >= 761)
 		{
 			boom.Boomxy.x = rand() % 80 * 10;
 			boom.Boomxy.y = rand() % 60 * 10;
@@ -207,7 +244,7 @@ void myGrass()
 	grass.flag = 1;
 	for (int i = 0; i < snake.num; i++)
 	{
-		if (grass.grassxy.x == snake.xy[i].x && grass.grassxy.y == snake.xy[i].y || grass.grassxy.y <= 29 || grass.grassxy.y >= 591)
+		if (grass.grassxy.x == snake.xy[i].x && grass.grassxy.y == snake.xy[i].y || grass.grassxy.y <= 39 || grass.grassxy.y >= 561|| grass.grassxy.x<=39||grass.grassxy.x>=761)
 		{
 			grass.grassxy.x = rand() % 80 * 10;
 			grass.grassxy.y = rand() % 60 * 10;
@@ -231,14 +268,46 @@ void eatGrass()
 	}
 }
 
+void nextlevel()
+{
+	if (snake.num >=10)
+	{
+		level.levelxy.x = rand() % 80 * 10;
+		level.levelxy.y = rand() % 60 * 10;
+		level.flag = 1;
+		for (int i = 0; i < snake.num; i++)
+		{
+			if (level.levelxy.x == snake.xy[i].x && level.levelxy.y == snake.xy[i].y || level.levelxy.y <= 29 || level.levelxy.y >= 591)
+			{
+				level.levelxy.x = rand() % 80 * 10;
+				level.levelxy.y = rand() % 60 * 10;
+			}
+		}
+	}
+}
+
+void gotonextlevel()
+{
+	if (snake.xy[0].x == level.levelxy.x && snake.xy[0].y == level.levelxy.y)
+	{
+		level.flag = 0;
+		level.thelevel++;
+	}
+}
+
+void drawnextlevel()
+{
+	fillrectangle(level.levelxy.x, level.levelxy.y, level.levelxy.x + 10, level.levelxy.y + 10);
+}
+
 int gameover()
 {
 
-	if (snake.xy[0].x <= 9 || snake.xy[0].y <= 29 || snake.xy[0].x >= 781 || snake.xy[0].y >= 581)
+	if (snake.xy[0].x <= 19 || snake.xy[0].y <= 39 || snake.xy[0].x >= 771 || snake.xy[0].y >= 571)
 	{
 		return 1;
 	}
-	if (snake.num <= 2)
+	if (snake.num <= 1)
 	{
 		return 1;
 	}
@@ -255,16 +324,19 @@ int gameover()
 
 void main()
 {
+
 	srand((unsigned int)time(NULL));
 	initgraph(800, 600);
+	start();
 	setbkcolor(WHITE);
+
 	initSnake();
 	drawSnake();
 	while (1)
 	{
 		cleardevice();
 		setlinecolor(BLACK);
-		rectangle(9, 30, 791, 591);
+		rectangle(19, 39, 781, 581);
 		setfillcolor(GREEN);
 		drawFood();
 		setfillcolor(BLACK);
@@ -281,7 +353,7 @@ void main()
 		{
 			myBoom();
 		}
-		if (food.flag == 0)
+		if (food.flag ==0)
 		{
 			myFood();
 		}
@@ -294,14 +366,16 @@ void main()
 		eatGrass();
 		if (gameover())
 		{
-			closegraph();
-			printf("GameOver!");
-			system("Pause");                   //存在bug，未解决
-			break;
+			cleardevice();
+			settextcolor(LIGHTGREEN);
+			settextstyle(80, 0, "宋体");
+			outtextxy(200, 200, "Game Over");
+			Sleep(2000);
+			exit(0);
 		}
 		drawSnake();
 		moveSnake();
-		Sleep(100);
+		Sleep(75);
 		while (_kbhit())
 		{
 			keyDown();
